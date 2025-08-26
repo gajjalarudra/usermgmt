@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  user-create-service:
+    build: ./user-create-service
+    environment:
+      DB_HOST: postgres
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
+      NOTIFY_URL: http://notification-service:3002/notify
+    depends_on:
+      - postgres
+      - notification-service
+    ports:
+      - "3000:3000"
+
+  user-management-service:
+    build: ./user-management-service
+    environment:
+      DB_HOST: postgres
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
+    depends_on:
+      - postgres
+    ports:
+      - "3001:3001"
+
+  notification-service:
+    build: ./notification-service
+    environment:
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      SENDER_EMAIL: ${SENDER_EMAIL}
+      SNS_TOPIC_ARN: ${SNS_TOPIC_ARN}
+    ports:
+      - "3002:3002"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_CREATE_API_URL=${VITE_CREATE_API_URL}
+        - VITE_MANAGE_API_URL=${VITE_MANAGE_API_URL}
+    depends_on:
+      - user-create-service
+      - user-management-service
+    ports:
+      - "5173:80"
+
+volumes:
+  pgdata:

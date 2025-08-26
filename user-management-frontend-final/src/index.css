@@ -1,0 +1,18 @@
+:root{
+  --brand: #5b21b6;
+  --muted: #6b7280;
+}
+body{
+  background: linear-gradient(180deg,#f8fafc 0%, #eef2ff 100%);
+  min-height:100vh;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+.navbar-brand { font-weight:700; }
+.app-hero {
+  background: white; border-radius: 16px; padding: 48px; box-shadow: 0 6px 30px rgba(16,24,40,0.08);
+}
+.card-custom { border-radius: 12px; box-shadow: 0 6px 20px rgba(99,102,241,0.08); }
+.btn-primary { background: var(--brand); border-color: var(--brand); }
+.table thead th { background: #382d6d; color: white; }
+.table tbody tr td { vertical-align: middle; }
+.edit-panel { position: fixed; right: 24px; top: 80px; width: 360px; z-index: 9999; }
